@@ -10,6 +10,10 @@ type MenuProps = {
     onPressSelect:Function,
 
 }
+export const MenuTitle = ({...props})=>{
+    return (
+    <div style={{fontSize:"1.5em",marginBottom:"1em"}} {...props}>{props.text}</div>)
+}
 export const Menu = (props:MenuProps)=>{
     const [menuList,setMenuList] = useState<MenuItemType[]>([]);
     const [selectedMenu,setSelectedMenuItem] = useState<MenuItemType>({id:0,name:""})
@@ -75,10 +79,13 @@ export const Menu = (props:MenuProps)=>{
     },[]);
     
         return (
-            <div onKeyDown={keyPressEvent} tabIndex={0} ref={menuRef} >
+            <div onKeyDown={keyPressEvent} style={{display:"flex",flex:1,flexDirection:"column",justifyContent:"space-between",height:"calc( 100% - 4em )"}} tabIndex={0} ref={menuRef} >
                 {menuList.map((item,index,arr)=>{
                     return (<MenuItem key={item.id} id={item.id} innerText={item.name} isSelected = {item.id===selectedMenu.id}></MenuItem>)
                 })}
+                {menuList.length!=4?Array.from(Array(4-(menuList.length%4)).keys()).map(()=>{
+                    return(<MenuItem key={0} id={0} innerText="" isSelected={false}></MenuItem>)
+                }):null}
             </div>
         )
     
