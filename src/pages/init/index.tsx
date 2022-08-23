@@ -20,8 +20,12 @@ export const InitPage = (props:initPageProps)=>{
         pageRef.current!.focus();
     })
     return(
-        <div onKeyDown={(evt)=>keyPressEvent(evt)} tabIndex={0} ref={pageRef}>
-            <div>호출하시려면 하단에 있는 호출 버튼을 눌러주세요.</div>
+        <div style={{height:"100vh",display:"flex"}} onKeyDown={(evt)=>keyPressEvent(evt)} tabIndex={0} ref={pageRef}>
+            <div style={{display:"flex",flexDirection:"column",flex:1,padding:"2em"}}>
+                <div style={{flex:1}}></div>
+            <div style={{alignItems:"center",justifyContent:"center",textAlign:"center",fontSize:"1.2em"}}>호출하시려면 하단에 있는 호출 버튼을 눌러주세요.</div>
+            </div>
+            
         </div>
     )
 }
