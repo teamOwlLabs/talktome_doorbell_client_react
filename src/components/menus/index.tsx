@@ -17,7 +17,10 @@ export const MenuTitle = ({...props})=>{
 export const Menu = (props:MenuProps)=>{
     const [menuList,setMenuList] = useState<MenuItemType[]>([]);
     const [selectedMenu,setSelectedMenuItem] = useState<MenuItemType>({id:0,name:""})
+    const [menuStyle, setMenuStyle] = useState({borderWidth:0});
     const menuRef = useRef<HTMLDivElement>(null);
+
+
     function isStartReached(){
         console.log("isStartReached")
         return(selectedMenu.id===menuList[0].id)
@@ -79,7 +82,18 @@ export const Menu = (props:MenuProps)=>{
     },[]);
     
         return (
-            <div onKeyDown={keyPressEvent} style={{display:"flex",flex:1,flexDirection:"column",justifyContent:"space-between",height:"calc( 100% - 4em )"}} tabIndex={0} ref={menuRef} >
+            <div onKeyDown={keyPressEvent} 
+            style={{
+                display:"flex",
+                flex:1,
+                flexDirection:"column",
+                justifyContent:"space-between",
+                height:"calc( 100% - 4em )",
+                borderWidth:0
+                }} 
+            tabIndex={0} 
+            ref={menuRef} 
+            >
                 {menuList.map((item,index,arr)=>{
                     return (<MenuItem key={item.id} id={item.id} innerText={item.name} isSelected = {item.id===selectedMenu.id}></MenuItem>)
                 })}
