@@ -18,7 +18,7 @@ export const InitPage = (props:initPageProps)=>{
     }
     useEffect(()=>{
         pageRef.current?.focus();
-    })
+    },[])
     return(
         <div style={{height:"100vh",display:"flex"}} onKeyDown={(evt)=>keyPressEvent(evt)} tabIndex={0} ref={pageRef}>
             <div style={{display:"flex",flexDirection:"column",flex:1,padding:"2em"}}>

@@ -1,10 +1,11 @@
 import React,{ useEffect, useReducer, useRef, useState } from "react";
-import { getKeyEventValue, startRecordAudio } from "../../utils";
+import { endRecordAudio, getKeyEventValue, startRecordAudio } from "../../utils";
 import micOnImg from "../../assets/mic_on.png";
 import micOffImg from "../../assets/mic_off.png";
 import { Button } from "../../components/buttons";
 import { createCallRequest, sendVoiceRecogRequest } from "../../services";
 import { MenuTitle } from "../../components/menus";
+import { Confirm } from "../../components/confirms";
 
 type DetailPurposePageProps = {
     selectedCategoryID: number;
@@ -14,13 +15,32 @@ type DetailPurposePageProps = {
 
 type voiceRecogStateType = "ready"|"recording"|"analyzing"|"complete"
 type voiceRecogReadyElementProps = {
-    setVoiceRecogState:Function
+    setVoiceRecogState:Function,
+    onRecogComplete:Function
 }
 const VoiceRecogReadyElement = (props:voiceRecogReadyElementProps)=>{
-    const [selectStatus,setButtonStatus] = useState<Boolean>(false)
+
+    const ref =useRef<HTMLDivElement>(null);
+    useEffect(()=>{
+        console.log("focusing on button")
+        ref.current!.focus();
+     },[])
+    function onKeyPress(evt:React.KeyboardEvent){
+        console.log(evt.key)
+    switch(evt.key){
+        case (getKeyEventValue("RECORD")):
+            props.setVoiceRecogState("recording")
+            break;
+        case (getKeyEventValue("SELECT")):
+            props.onRecogComplete();
+            break;
+        default:
+            console.log("not supported key event");
+    }
+}
     console.log("voice recog ready element")
     return (
-    <div style={{display:"flex",flex:1,flexDirection:"column"}} >
+    <div ref={ref} onKeyDown={(evt)=>onKeyPress(evt)} style={{display:"flex",flex:1,flexDirection:"column"}} tabIndex={0} >
         <div style={{alignItems:"center"}}>- 마이크 버튼을 누르고 용건을 말씀 해 주세요.</div>
         <div style={{display:"flex",flex:1,alignItems:"center",justifyContent:"center",paddingTop:"1em",flexDirection:"column"}}>
             <div style={{display:"flex",flex:1,alignItems:"center",justifyContent:"center",paddingTop:"1em"}}>
@@ -30,6 +50,7 @@ const VoiceRecogReadyElement = (props:voiceRecogReadyElementProps)=>{
                 음성인식을 위해 우측 하단의 마이크 버튼을 눌러주세요.
             </div>
         </div>
+        <Confirm label={"자세한 방문 목적을 밝히지 않으시려면 선택 버튼을 눌러주세요."}/>
         
         
     </div>
@@ -44,17 +65,17 @@ const VoiceRecogRecordingElement = ({...props})=>{
     },[])
     
     function onKeyPress(evt:React.KeyboardEvent){
-        console.log("onKeyUp")
         switch(evt.key){
             case (getKeyEventValue("RECORD")):
                 props.onRecordComplete()
                 break;
+            
             default:
                 console.log("not supported key event");
         }
     }
     return (
-        <div ref={ref}  onKeyDown={(evt)=>{onKeyPress(evt)}} style={{display:"flex",flex:1,flexDirection:"column"}} >
+        <div ref={ref}  onKeyDown={(evt)=>{onKeyPress(evt)}} style={{display:"flex",flex:1,flexDirection:"column"}}  tabIndex={0}>
             <div style={{alignItems:"center"}}>- 마이크 버튼을 누르고 용건을 말씀 해 주세요.</div>
             <div style={{display:"flex",flex:1,alignItems:"center",justifyContent:"center",paddingTop:"1em",flexDirection:"column"}}>
                 <div style={{display:"flex",flex:1,alignItems:"center",justifyContent:"center",paddingTop:"1em"}}>
@@ -92,7 +113,7 @@ const VoiceRecogCompleteElement = ({...props})=>{
     const [buttonStatus,setButtonStatus] = useState<Boolean>(true)
     const goNextOrReturnRecording = ()=>{
         if (buttonStatus){
-            props.onVoiceRecogComplete();
+            props.onRecogComplete();
         }else{
             props.setVoiceRecogState("recording")
         }
@@ -108,7 +129,7 @@ const VoiceRecogCompleteElement = ({...props})=>{
                 분석이 완료되었습니다.
             </div>
             <div>
-                {props.recordResult}
+                {props.recogResult}
             </div>
             <Button value={buttonStatus} label={"위 용건이 맞으신가요?"} trueButtonText={"네"} falseButtonText={"아니오"} updateValue={(val:Boolean)=>setButtonStatus(val)} sendValueSelected={()=>goNextOrReturnRecording()} onRecordButtonPressed={()=>{}} />
         </div>
@@ -120,11 +141,11 @@ const DetailPurposeDisplay = ({...props})=>{
     switch(props.voiceRecogState){
         case "ready":
             return (
-                <VoiceRecogReadyElement {...props} setVoiceRecogState = {(val:String)=>props.setVoiceRecogState(val)} />
+                <VoiceRecogReadyElement {...props} setVoiceRecogState = {(val:voiceRecogStateType)=>props.setVoiceRecogState(val)} onRecogComplete={()=>props.onRecogComplete()} />
             )
         case "recording":
             return (
-                <VoiceRecogRecordingElement {...props} onStartRecord={()=>{props.startAudioRecording()}}/>
+                <VoiceRecogRecordingElement {...props} onStartRecord={()=>{props.startAudioRecording()}} onRecordComplete={()=>{props.endAudioRecording()}}/>
             )
         case "analyzing": 
             return (
@@ -141,41 +162,39 @@ const DetailPurposeDisplay = ({...props})=>{
 export const DetailPurposePage = (props:DetailPurposePageProps)=>{
     const [voiceRecogState,setVoiceRecogState] = useState<voiceRecogStateType>("ready")
     const [recogResult,setRecogResult] = useState<String>("");
-    
-    const detailPurposeRef = useRef<HTMLDivElement>(null)
-    const goCall=async()=>{
-
-        props.goCall(recogResult)
+    const sendResult=()=>{
+        createCallRequest({
+            type:props.selectedCategoryID,
+            visit_reason:recogResult
+        })
     }
-    const getVoiceRecogFromServer=async ()=>{
-        let result = await sendVoiceRecogRequest();
-        setRecogResult(result);
-
+    const onVoiceRecogComplete=()=>{
+        sendResult()
+        props.goCall();
     }
-    const startAudioRecording = ()=>{
-        
+    function startRecordAudio(){
+        console.log("startRecord")
     }
-    const stopAudioRecording = ()=>{
-
-    }
-    const keyPressDownEvent=(evt:React.KeyboardEvent)=>{
-        console.log("keyPressDown")
+    async function endRecordAudio(){
+        console.log("endRecord")
+        let result = await sendVoiceRecogRequest()
+        setRecogResult(result)
+        setVoiceRecogState("complete")
     }
     console.log(`recogState:${voiceRecogState}`)
     return (
-        <div ref={detailPurposeRef} tabIndex={0} 
-        onKeyDown={(evt)=>keyPressDownEvent(evt)} 
+        <div 
         style={{padding:"2em",display:"flex",flexDirection:"column",height:"calc( 100vh - 4em )"}}>
             <MenuTitle text={`| ${props.selectedCategoryString} > 세부 방문목적 입력`}/>
 
-            <DetailPurposeDisplay {...props} 
-            voiceRecogState = {voiceRecogState} 
-            voiceRecogResult = {recogResult}
-            startAudioRecording = {()=>startAudioRecording()}
-            stopAudioRecording = {()=>stopAudioRecording()}
-            sendVoiceRecogRequest = {()=>{getVoiceRecogFromServer()}}
-            setVoiceRecogState={(val:voiceRecogStateType)=>setVoiceRecogState(val)}
-            onVoiceRecogComplete = {()=>goCall()}
+            <DetailPurposeDisplay {...props}
+                voiceRecogState={voiceRecogState} 
+                startRecord={()=>{startRecordAudio()}}
+                onRecogComplete={()=>onVoiceRecogComplete()}
+                setVoiceRecogState={(state:voiceRecogStateType)=>setVoiceRecogState(state)}
+                startAudioRecording={()=>startRecordAudio()}
+                endAudioRecording={()=>endRecordAudio()}
+                recogResult={recogResult}
              />
         </div>
     )

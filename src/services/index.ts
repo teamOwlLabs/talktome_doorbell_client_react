@@ -68,7 +68,7 @@ export async function createCallRequest(param:CallRequestType){
 
 export async function sendVoiceRecogRequest():Promise<String>{
     //음성인식 요청 
-    await delay(5000);
+    await delay(2000);
     return "음성인식이 완료되었습니다."
    
 }
