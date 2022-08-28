@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Menu, MenuTitle } from "../../components/menus";
 import { MenuItemType } from "../../services";
 
@@ -16,7 +15,7 @@ export const SelectPurposePage = (props:SelectPurposePageProps)=>{
                 } } 
                 onPressUp={()=>{}} 
                 onPressDown={()=>{}} 
-                onPressSelect={(value: MenuItemType)=>{console.log(value.id,value.name);props.onPressSelect(value.id)}} 
+                onPressSelect={(value: MenuItemType)=>{console.log(value.id,value.name);props.onPressSelect(value)}} 
                 />
             </div>
         </div>

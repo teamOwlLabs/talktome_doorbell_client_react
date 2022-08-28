@@ -72,7 +72,7 @@ export const Menu = (props:MenuProps)=>{
             console.log(result)
             setSelectedMenuItem(result[0])
 
-            menuRef.current!.focus();
+            menuRef.current?.focus();
 
             // window.addEventListener("keypress",keyPressEvent)
         })
@@ -97,7 +97,7 @@ export const Menu = (props:MenuProps)=>{
                 {menuList.map((item,index,arr)=>{
                     return (<MenuItem key={item.id} id={item.id} innerText={item.name} isSelected = {item.id===selectedMenu.id}></MenuItem>)
                 })}
-                {menuList.length!=4?Array.from(Array(4-(menuList.length%4)).keys()).map(()=>{
+                {menuList.length!==4?Array.from(Array(4-(menuList.length%4)).keys()).map(()=>{
                     return(<MenuItem key={0} id={0} innerText="" isSelected={false}></MenuItem>)
                 }):null}
             </div>

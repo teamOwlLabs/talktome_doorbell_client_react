@@ -1,66 +1,69 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { getKeyEventValue } from "../../utils"
 
 type buttonProps={
-    isActive:Boolean,
-    onReachedTop:Function,
-    onReachedBottom:Function,
-    onPressArrowUp:Function,
-    onPressArrowDown:Function,
-    onPressSelect:Function,
-    onPressCall:Function,
-    onPressRecord:Function,
+    value:Boolean, 
     label:String,
     trueButtonText:String,
-    falseButtonText:String
+    falseButtonText:String,
+    updateValue:Function,
+    sendValueSelected:Function,
+    onRecordButtonPressed:Function
+
 }
 const Button = (props:buttonProps)=>{
-    const [status,setStatus] = useState(true);
+    const buttonRef =useRef<HTMLSpanElement>(null);
     useEffect(()=>{
-        if (props.isActive){
-            window.addEventListener("keypress",(e)=>{
-                console.log("KeyCode:",e.code)
-                switch(e.code){
-                    case getKeyEventValue("UP"):
-                        if (status){
-                            props.onReachedTop();
-                        }
-                        props.onPressArrowUp();
-                        break;
-                    case getKeyEventValue("DOWN"):
-                        if(!status){
-                            props.onReachedBottom();
-                        }
-                        props.onPressArrowDown();
-                        break;
-                    case getKeyEventValue("SELECT"):
-                        props.onPressSelect();
-                        break;
-                    case getKeyEventValue("RECORD"):
-                        props.onPressRecord();
-                        break;
-                    case getKeyEventValue("CALL"):
-                        props.onPressCall();
-                        break;
-                    default:
-                        console.error("wrong keycode input. check button configuration")
-                }
-            })
-        }
+        console.log("focusing on button")
+        buttonRef.current?.focus();
     },[])
+
+    const keyPressDownEvent = (evt:React.KeyboardEvent)=>{
+        console.log("keyPressDownEvent:",evt.key)
+        switch(evt.key){
+            case (getKeyEventValue("CALL")):
+               //props.onPressCall();
+                break;  
+            case (getKeyEventValue("RECORD")):
+                props.onRecordButtonPressed(); 
+                break;
+            case (getKeyEventValue("UP")):
+                if(props.value===false){
+                    props.updateValue(true)
+                }         
+                console.log("voice recog up pressed")
+                break;
+            case (getKeyEventValue("DOWN")):
+                if (props.value===true){
+                    props.updateValue(false)
+                }                    
+                console.log("voicerecog down pressed")
+
+                break;
+            case (getKeyEventValue("SELECT")):
+                    props.sendValueSelected();
+                break;
+            default:
+                console.warn("no proper keyevent input.")
+                return null;
+        }
+    }
     
     return(
-        <span>
-            <div style={status?{
-                "backgroundColor":"lightgray"
-            }:undefined}>
-                {props.label}
-                
+        <span ref={buttonRef} onKeyDown={(evt)=>keyPressDownEvent(evt)} tabIndex={0}  >
+            {props.label} 
+
+            <div style={props.value ? {
+                "backgroundColor": "lightgray"
+            } : undefined}
+                >
+            {props.trueButtonText}
+
             </div>
-            <div style={!status?{
-                "backgroundColor":"lightgray"
-            }:undefined}>
-                {props.trueButtonText}
+            <div style={!props.value ? {
+                "backgroundColor": "lightgray"
+            } : undefined}>
+                {props.falseButtonText}
             </div>
         </span>
     )
