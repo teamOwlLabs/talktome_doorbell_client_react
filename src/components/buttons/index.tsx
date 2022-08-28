@@ -50,19 +50,22 @@ const Button = (props:buttonProps)=>{
     }
     
     return(
-        <span ref={buttonRef} onKeyDown={(evt)=>keyPressDownEvent(evt)} tabIndex={0}  >
-            {props.label} 
+        <span style={{display:"flex",width:"100%"}} ref={buttonRef} onKeyDown={(evt)=>keyPressDownEvent(evt)} tabIndex={0}  >
+            <div style={{flex:1,alignItems:"center",padding:"0.5em"}}>
+                {props.label} 
+
+            </div>
 
             <div style={props.value ? {
-                "backgroundColor": "lightgray"
-            } : undefined}
+                "backgroundColor": "lightgray",padding:"0.5em",alignItems:"center"
+            } : {padding:"0.5em",alignItems:"center"}}
                 >
             {props.trueButtonText}
 
             </div>
             <div style={!props.value ? {
-                "backgroundColor": "lightgray"
-            } : undefined}>
+                "backgroundColor": "lightgray",padding:"0.5em",alignItems:"center"
+            } : {padding:"0.5em",alignItems:"center"} }>
                 {props.falseButtonText}
             </div>
         </span>
