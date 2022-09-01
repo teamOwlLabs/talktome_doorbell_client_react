@@ -34,35 +34,25 @@ export async function createMenu(param:MenuItemType){
 
 export async function getMenuList():Promise<MenuItemType[]>
 {
-
-    // let response = await fetch("localhost:8000/doorbell/category",{
-    //     method:"GET"
-    // })
-    // return response.json()
+    console.log("getMenuList")
+    let response = await fetch("http://127.0.0.1:8000/doorbell/category",{
+        method:"GET"
+    })
+    let resVal = await response.json()
+    console.log("resVal:",resVal)
+    let result = resVal.map((item:any)=>{return {id:item.id,name:item.type}})
+    console.log("result",result)
+    return result
     
 
-    return new Promise((resolve,reject)=>{resolve([
-        {
-            id:1,
-            name:"배달"
-        },
-        {
-			id:2,
-			name:"검침"
-		},
-		{
-			id:3,
-			name:"지인"
-		},
-		{
-			id:4,
-			name:"기타"
-		}
-    ])})
 }
 export async function createCallRequest(param:CallRequestType){
-    let response = await fetch("localhost:8000/doorbell/visit",{
+    console.log("createCallRequestParam:",param)
+    let response = await fetch("http://127.0.0.1:8000/doorbell/visit/",{
         method:"POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
         body:JSON.stringify(param)
     })
     if (!response.ok){
