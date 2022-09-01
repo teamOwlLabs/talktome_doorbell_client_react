@@ -43,17 +43,21 @@ export async function getMenuList():Promise<MenuItemType[]>
 
     return new Promise((resolve,reject)=>{resolve([
         {
-            id:0,
-            name:"지인"
-        },
-        {
             id:1,
             name:"배달"
         },
         {
-            id:2,
-            name:"택배"
-        }
+			id:2,
+			name:"검침"
+		},
+		{
+			id:3,
+			name:"지인"
+		},
+		{
+			id:4,
+			name:"기타"
+		}
     ])})
 }
 export async function createCallRequest(param:CallRequestType){
@@ -69,6 +73,6 @@ export async function createCallRequest(param:CallRequestType){
 export async function sendVoiceRecogRequest():Promise<String>{
     //음성인식 요청 
     await delay(2000);
-    return "음성인식이 완료되었습니다."
+    return "생수배달"
    
 }
